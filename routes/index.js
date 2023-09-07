@@ -12,12 +12,6 @@ router.get('/', (req, res)=>{
     res.render('home');
 });
 
-router.get('/views', (req, res)=>{
-    req.session.save(function(err){
-        if(req.session === undefined) { return res.send('Session does not exist!'); }
-        res.send(req.session.id);
-    });
-});
 
 router.get('/profile', (req, res)=>{
     if(req.isAuthenticated()){

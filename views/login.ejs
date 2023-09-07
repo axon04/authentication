@@ -7,20 +7,25 @@
     <title>Login</title>
 </head>
 <body>
-    <form action="/login" method="post">
-        <div class="input">
-            <input type="text" name="username" id="username" placeholder="username">
+    <div class="wrapper">
+        <form action="/login" method="post">
+            <div class="input">
+                <input type="text" name="username" id="username" placeholder="username">
+            </div>
+            <div class="input">
+                <input type="password" name="password" id="password" placeholder="password">
+            </div>
+            <div class="link">
+                <p><%= msg %></p>
+            </div>
+            <div align="center">
+                <button class="btn" type="submit">Login</button>
+            </div>
+        </form>
+        <div class="link">
+            <a href="/">Home</a> | 
+            <a href="/register">Register</a>
         </div>
-        <div class="input">
-            <input type="password" name="password" id="password" placeholder="password">
-        </div>
-        <div>
-            <button class="btn" type="submit">Login</button>
-        </div>
-    </form>
-    <div class="link">
-        <a href="/">Home</a>
-        <a href="/register">Register</a>
     </div>
     
 

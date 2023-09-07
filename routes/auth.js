@@ -9,26 +9,23 @@ const User = require('../models/user');
 /*==================================
  *       Configure Strategy
  *==================================
- *
+ * The messages declared here are stored in an array 'messages' in session object.
+ * But this array is not cleared as long as session exists.
+ * This results in old messages still being displayed on login page. 
+ * 
+ * Using express-flash is the solution here. Refer to pd_ver2 project.
  */
 
-
 const strategy = new LocalStrategy(
-    (username, password, done)=>{
-        User.findOne({username: username})
-        .then((found)=>{
-            if(found === null) { return done(null, false, {message: 'User does not exist.'}); }  //no user found
+    async (username, password, done)=>{
+        
+        const found = await User.findOne({username: username})
+        if(found === null) { return done(null, false, {message: 'User does not exist.'}); }     //no user found
+        
+        const result = await bcrypt.compare(password, found.hash);
+        if(result === false) { return done(null, false, {message: 'Incorrect password.'}); } //wrong password
 
-            bcrypt.compare(password, found.hash)
-            .then((result)=>{ 
-                if(result === false) { return done(null, false, {message: 'Incorrect password.'}); } //wrong password
-                return done(null, found); //all good
-            })
-
-        })
-        .catch((err)=>{
-            return done(err);
-        })
+        return done(null, found); //all good
     }
 );
 
@@ -43,13 +40,13 @@ passport.use(strategy);
  */
 
 passport.serializeUser((user, cb)=>{
-    process.nextTick(function() {
+    process.nextTick(()=>{
         cb(null, { id: user.id, username: user.username });      // somehow passport stores the found data when strategy is used
     });
 });
 
-passport.deserializeUser(function(user, cb) {
-    process.nextTick(function() {
+passport.deserializeUser((user, cb)=>{
+    process.nextTick(()=>{
       return cb(null, user);
     });
 });
@@ -62,17 +59,14 @@ passport.deserializeUser(function(user, cb) {
  *====================
  */
 
-
 const router = express.Router();
 
 router.route('/login')
     .get((req, res)=>{
-        
         if(req.isAuthenticated()){              //if already logged in, send to profile page
            return res.redirect('/profile');
         }
-        
-        res.render('login');        //else show login page
+        res.render('login', {msg: req.session.messages ? req.session.messages.slice(-1): '' });        //else show login page
     })
     .post(
         passport.authenticate('local', {
@@ -82,30 +76,30 @@ router.route('/login')
         })
     );
 
-
 router.route('/register')
     .get((req, res)=>{
         res.render('register');
     })
     .post((req, res)=>{
-        User.findOne({username: req.body.username})
-        .then((found)=>{
-            if(found !== null) { return res.send('<pre style="font-family: monospace; margin: 1em 0px;">Error: A user already exists with that username.</pre>'); }
+        async function createUser(){
+            const found = await User.findOne({username: req.body.username});
+            if(found !== null) { return res.render('error', {msg: 'A user already exists with that username.'}); }
 
-            bcrypt.hash(req.body.password, 10)
-            .then((hash)=>{
-                const newUser = new User({
-                    name: req.body.name,
-                    username: req.body.username,
-                    hash: hash
-                });
-                newUser.save();
-            })
-            .then(()=>{ res.status(200).redirect('/login') });
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+            const hash = await bcrypt.hash(req.body.password, 10);
+            const newUser = new User({
+                name: req.body.name,
+                username: req.body.username,
+                hash: hash
+            });
+            await newUser.save();
+            res.redirect('/login');
+        }
+        
+        try{
+            createUser();
+        }catch(err){
+            res.send(err);
+        }
     });
 
 router.post('/logout', (req, res, next) => {
@@ -120,4 +114,26 @@ router.post('/logout', (req, res, next) => {
         }
     });
 });
+
+router.post('/changepassword', (req, res)=>{
+    async function changePassword(){
+        const found = await User.findOne({_id: req.session.passport.user.id});
+        if(found === null) { return res.render('error', {msg: 'User does not exist anymore.'})}
+        
+        const hash = await bcrypt.hash(req.body.newPassword, 10);
+        found.hash = hash;
+        await found.save();
+        res.render('passupdated');
+    }
+    
+    if(req.isAuthenticated()){
+        try{
+            changePassword();
+        }catch(err){
+            console.log(err);
+        }
+    }
+})
+
+
 module.exports = router;

@@ -7,13 +7,31 @@
     <title>Profile</title>
 </head>
 <body>
-    <div class="link">
-        <a>This is a protected path. Only authorized personnel allowed.</a>
-    </div>
-    <form action="/logout" method="post">
-        <div>
-            <button class="btn" type="submit">Logout</button>
+    <div class="wrapper">
+        <div class="link">
+            <a>Access granted.</a>
         </div>
-    </form>
+        <form action="/logout" method="post">
+            <div>
+                <button class="btn" type="submit">Logout</button>
+            </div>
+        </form>
+
+        <div class="heading">
+            <p>Change Password</p>
+        </div>
+
+        <form action="/changepassword" method="post">
+            <div class="input">
+                <input type="password" name="newPassword" id="newPassword" placeholder="New password">
+            </div>
+            <div class="input">
+                <input type="password" name="cnewPassword" id="cnewPassword" placeholder="Confirm new password">
+            </div>
+            <div align="center">
+                <button class="btn" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
