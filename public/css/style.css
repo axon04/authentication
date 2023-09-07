@@ -1,0 +1,47 @@
+*{
+    font-family: monospace;
+
+}
+
+body{
+    box-sizing: border-box;
+    background-color: #2c2c2c;
+    background-image: url("https://transparenttextures.com/patterns/inflicted.png");
+    /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
+}
+
+.link a{
+    color: white;
+}
+
+.link, .input{
+    margin: 1em 0px;
+}
+
+.input input{
+    border: 1px solid #838383;
+    border-radius: 4px;
+    padding: 4px;
+    background-color: #2c2c2c;
+    color: white;
+}
+
+.input input::placeholder{
+    color: rgb(204, 204, 204);
+}
+
+.input input:focus{
+    outline: 1px solid rgb(204, 204, 204);
+    border-color: rgb(204, 204, 204);
+    background-color: #636363;
+}
+
+.btn{
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+}
+.btn:hover{
+    background-color: #d80000;
+    color: white;
+}
