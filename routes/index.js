@@ -8,7 +8,6 @@ const passport = require('passport');
 const router = express.Router();
 
 router.get('/', (req, res)=>{
-    console.log(req.session);
     res.render('home');
 });
 
